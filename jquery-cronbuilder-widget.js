@@ -207,9 +207,12 @@ $.widget( "cron.cronvalue", $.cron.cronbase, {
 		return this.minute()+" "+this.hour()+" "+this.dayOfMonth()+" "+this.month()+" "+this.dayOfWeek();
 	},
 	broadcastEvent: function(event) {
+		var self = this;
 		if(this.options.targetInput != undefined) {
-			var target = $(this.options.targetInput);
-			$(this.options.targetInput).val(this.cronValue());
+			$(this.options.targetInput).each(function(){
+				$(this).val(self.cronValue()); 
+			});
+			
 		}
 	}
 });
