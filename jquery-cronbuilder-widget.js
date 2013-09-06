@@ -206,7 +206,7 @@ $.widget( "cron.cronvalue", $.cron.cronbase, {
 	cronValue: function() {
 		return this.minute()+" "+this.hour()+" "+this.dayOfMonth()+" "+this.month()+" "+this.dayOfWeek();
 	},
-	broadcastEvent: function(event) {
+	broadcastEvent: function() {
 		var self = this;
 		if(this.options.targetInput != undefined) {
 			$(this.options.targetInput).each(function(){
@@ -214,13 +214,13 @@ $.widget( "cron.cronvalue", $.cron.cronbase, {
 			});
 			
 		}
-	}
+	},
 });
 
 
 $.widget( "cron.cronminuteselector", $.cron.cronvalue, {
 	_create: function() {
-			
+		this.broadcastEvent();
 	},
 });
 
@@ -230,6 +230,7 @@ $.widget( "cron.cronhourselector", $.cron.cronvalue, {
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildSelectTime(this.element, 'cron-minute', 0, 59, 1, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>minutes past the hour.</div>");
+		this.broadcastEvent();
 	},
 });
 
@@ -238,6 +239,7 @@ $.widget( "cron.crondayselector", $.cron.cronvalue, {
 	_create: function() {
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildTimePanel();
+		this.broadcastEvent();
 	},
 });
 
@@ -257,6 +259,7 @@ $.widget( "cron.cronweekselector", $.cron.cronvalue, {
 		this._buildSelect(this.element, 'cron-day-of-week', this.day, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildTimePanel();
+		this.broadcastEvent();
 	},
 });
 
@@ -268,6 +271,7 @@ $.widget( "cron.cronmonthselector", $.cron.cronvalue, {
 		this._buildSelectDay(this.element, 'cron-day-of-month', 1, 31, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>day at</div>");
 		this._buildTimePanel();
+		this.broadcastEvent();
 	},
 });
 
@@ -293,6 +297,7 @@ $.widget( "cron.cronyearselector", $.cron.cronvalue, {
 		this._buildSelect(this.element, 'cron-month', this.months, this.broadcastEvent);	
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildTimePanel();
+		this.broadcastEvent();
 	},
 });
 

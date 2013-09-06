@@ -21,19 +21,27 @@
 	</style>
 	<script>
 	$(function() {
-		$( "#cron" ).cronselector({targetInput : "input"});
+		$( "#cron1" ).cronselector({targetInput : "input.c1"});
+		$( "#cron2" ).cronselector({targetInput : "input.c2"});
 	});
 	</script>
 </head>
 <body>
 
-<div id="cron"></div>
-
-
+<div id="cron1"></div>
 <div>
-	<p>Cron Value Selected: <input type="text" name="cronValue"/></p>
-	<p>Cron Value Selected: <input type="text" name="cronValue"/></p>
-	<p>Cron Value Selected: <input type="text" name="cronValue"/></p>
+	<p>Cron Value Selected: <input type="text" name="c11" class="c1"/></p>
+	<p>Cron Value Selected: <input type="text" name="c12" class="c1"/></p>
+	<p>Cron Value Selected: <input type="text" name="c13" class="c1"/></p>
+</div>
+
+
+
+<div id="cron2"></div>
+<div>
+	<p>Cron Value Selected: <input type="text" name="c21" class="c2"/></p>
+	<p>Cron Value Selected: <input type="text" name="c22" class="c2"/></p>
+	<p>Cron Value Selected: <input type="text" name="c23" class="c2"/></p>
 </div>
 </body>
 </html>
