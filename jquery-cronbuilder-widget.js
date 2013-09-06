@@ -1,6 +1,8 @@
 $.widget( "cron.cronbase", {
-	_buildSelectTime: function( container, min, max, inc, callback) {
+
+	_buildSelectTime: function(container, clz, min, max, inc, callback) {
 		var select = $("<select></select>");
+		select.addClass(clz);
 		
 		for (var i = min, limit = max; i <= limit; i+=inc) {
 			var option = $('<option/>');
@@ -23,9 +25,10 @@ $.widget( "cron.cronbase", {
 		return select;
     },
 
-    _buildSelectDay: function( container, min, max, callback) {
+    _buildSelectDay: function(container, clz, min, max, callback) {
 		var select = $("<select></select>");
-		
+		select.addClass(clz);
+
 		for (var i = min, limit = max; i <= limit; i++) {
 			var option = $('<option/>');
 			option.attr({ 'value': i }).text(ordinal_suffix_of(i));
@@ -42,14 +45,15 @@ $.widget( "cron.cronbase", {
 		}
 
 		container.append(select);
-		select.chosen({width: "60px"});
+		select.chosen({width: "70px"});
 
 		return select;
     },
 
-    _buildSelect: function( target, map, callback ) {
+    _buildSelect: function(container, clz, map, callback ) {
 		var select = $("<select></select>");
-
+		select.addClass(clz);
+		
 		$.each( map, function( key, value ) {
 		  var option = $('<option/>');
 		  option.attr({ 'value': value }).text(key);
@@ -65,8 +69,7 @@ $.widget( "cron.cronbase", {
 			});
 		}
 
-
-		target.append(select);
+		container.append(select);
 		select.chosen({width: "100px"});
 
 		return select;
@@ -75,6 +78,10 @@ $.widget( "cron.cronbase", {
 });
 
 $.widget( "cron.cronselector", $.cron.cronbase, {
+	options: {
+		targetInput: null
+	},
+
 	types: {
 			"": "",
 			"Minute": "cronminuteselector", 
@@ -90,13 +97,12 @@ $.widget( "cron.cronselector", $.cron.cronbase, {
 		main.append("<div class='cron-text'>Every:</div>");
 
 		//build a select for the types, and register the callback.
-		var selector = this._buildSelect(main, this.types, this._setCronType);
+		var selector = this._buildSelect(main, "cron-type-select", this.types, this._setCronType);
 
 		var container = $("<div class='cron-container'></div>");
 		main.append(container);
 
 		this.element.append(main);
-		selector.chosen({width: "100px"});
 	}, 
 
 	_setCronType: function(event) {
@@ -107,105 +113,121 @@ $.widget( "cron.cronselector", $.cron.cronbase, {
 		var container = this.element.find(".cron-container");
 		var newContainer = $("<div class='cron-container'></div>");
 		container.replaceWith(newContainer);
-		newContainer[option]();
+
+		var result = newContainer[option]({
+			targetInput: this.options.targetInput
+		});
 	}
 
 });
 
 
 $.widget( "cron.cronvalue", $.cron.cronbase, {
+	options: {
+		targetInput: null
+	},
+
 	_buildTimePanel: function() {
-		this.registry.hour = this._buildSelectTime(this.element, 1, 12, 1, this.printCron);
+		this._buildSelectTime(this.element, 'cron-hour', 1, 12, 1, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>:</div>");
-		this.registry.minute = this._buildSelectTime(this.element, 0, 59, 1, this.printCron);
+		this._buildSelectTime(this.element, 'cron-minute', 0, 59, 1, this.broadcastEvent);
 		this.element.append("<div class='cron-text'> </div>");
-		this.registry.ampm = this._buildSelect(this.element, {"AM": "am", "PM": "pm",}, this.printCron);
+		this._buildSelect(this.element, 'cron-ampm', {"AM": "am", "PM": "pm",}, this.broadcastEvent);
 	},
 
 	registry: {
-		day: null,
-		month: null, 
-		dayOfWeek: null,
-		dayOfMonth: null,
-		hour: null,
-		minute: null
+		day: 'cron-hour',
+		month: 'cron-month', 
+		dayOfWeek: 'cron-day-of-week',
+		dayOfMonth: 'cron-day-of-month',
+		hour: 'cron-hour',
+		minute: 'cron-minute',
+		ampm: 'cron-ampm'
 	},
 
+	_findRegisteredElement: function(elementId) {
+		var ref = this.element.find("select."+this.registry[elementId]);
+
+		if(ref.length > 0) {
+			return ref;
+		}
+		return undefined;
+	}, 
+
 	dayOfWeek: function() {
-		if(this.registry.dayOfWeek === null) {
+		if(this._findRegisteredElement('dayOfWeek') == undefined) {
 			return "*";
 		}
 		else {
-			return this.registry.dayOfWeek.val();
+			return this._findRegisteredElement('dayOfWeek').val();
 		}
 	},
 
 	month: function() {
-		if(this.registry.month === null) {
+		if(this._findRegisteredElement('month') == undefined) {
 			return "*";
 		}
 		else {
-			return this.registry.month.val();
+			return this._findRegisteredElement('month').val();
 		}
 	},
 	dayOfMonth: function() {
-		if(this.registry.dayOfMonth === null) {
+		if(this._findRegisteredElement('dayOfMonth') == undefined) {
 			return "*";
 		}
 		else {
-			return this.registry.dayOfMonth.val();
+			return this._findRegisteredElement('dayOfMonth').val();
 		}
 	},
 	hour: function() {
-		if(this.registry.hour === null) {
+		if(this._findRegisteredElement('hour') == undefined) {
 			return "*";
 		}
 		else {
 			var ampmVal = "am";
-			if(this.registry.ampm !== null) {
-				ampmVal = this.registry.ampm.val();
-
+			if(this._findRegisteredElement('ampm') != undefined) {
+				ampmVal = this._findRegisteredElement('ampm').val();
+				
 				if(ampmVal == "pm") {
-					return (parseInt(this.registry.hour.val())+12);
+					return (parseInt(this._findRegisteredElement('hour').val())+12);
 				}
 			}
-			return this.registry.hour.val();
+			return this._findRegisteredElement('hour').val();
 		}
 	},
 	minute: function() {
-		if(this.registry.minute === null) {
+		if(this._findRegisteredElement('minute') == undefined) {
 			return "*";
 		}
 		else {
-			return this.registry.minute.val();
+			return this._findRegisteredElement('minute').val();
 		}
 	},
 	cronValue: function() {
 		return this.minute()+" "+this.hour()+" "+this.dayOfMonth()+" "+this.month()+" "+this.dayOfWeek();
 	},
-	printCron: function() {
-		console.log(this.cronValue());
+	broadcastEvent: function(event) {
+		if(this.options.targetInput != undefined) {
+			var target = $(this.options.targetInput);
+			$(this.options.targetInput).val(this.cronValue());
+		}
 	}
 });
 
 
 $.widget( "cron.cronminuteselector", $.cron.cronvalue, {
-	
 	_create: function() {
-		this.element.append("<div class='cron-text'>*</div>");
+			
 	},
-
 });
 
 $.widget( "cron.cronhourselector", $.cron.cronvalue, {
 
 	_create: function() {
 		this.element.append("<div class='cron-text'>at</div>");
-		this.registry.hour = null;
-		this.registry.minute = this._buildSelectTime(this.element, 0, 59, 1, this.printCron);
-		this.element.append("<div class='cron-text'>minutes past the hour.</div>")
+		this._buildSelectTime(this.element, 'cron-minute', 0, 59, 1, this.broadcastEvent);
+		this.element.append("<div class='cron-text'>minutes past the hour.</div>");
 	},
-
 });
 
 
@@ -229,7 +251,7 @@ $.widget( "cron.cronweekselector", $.cron.cronvalue, {
 
 	_create: function() {
 		this.element.append("<div class='cron-text'>on</div>");
-		this.registry.dayOfWeek = this._buildSelect(this.element, this.day, this.printCron);
+		this._buildSelect(this.element, 'cron-day-of-week', this.day, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildTimePanel();
 	},
@@ -240,7 +262,7 @@ $.widget( "cron.cronweekselector", $.cron.cronvalue, {
 $.widget( "cron.cronmonthselector", $.cron.cronvalue, {
 	_create: function() {
 		this.element.append("<div class='cron-text'>on the</div>");
-		this.registry.dayOfMonth = this._buildSelectDay(this.element, 1, 31, this.printCron);
+		this._buildSelectDay(this.element, 'cron-day-of-month', 1, 31, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>day at</div>");
 		this._buildTimePanel();
 	},
@@ -263,9 +285,9 @@ $.widget( "cron.cronyearselector", $.cron.cronvalue, {
 	},
 	_create: function() {
 		this.element.append("<div class='cron-text'>on the</div>");
-		this.registry.dayOfMonth = this._buildSelectDay(this.element, 1, 31, this.printCron);
+		this._buildSelectDay(this.element, 'cron-day-of-month', 1, 31, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>of</div>");
-		this.registry.month = this._buildSelect(this.element, this.months, this.printCron);	
+		this._buildSelect(this.element, 'cron-month', this.months, this.broadcastEvent);	
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildTimePanel();
 	},
