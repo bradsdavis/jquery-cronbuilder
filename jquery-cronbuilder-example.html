@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Cron Widget</title>
+	<link rel="stylesheet" href="content/themes/base/jquery.ui.all.css">
+	<link rel="stylesheet" href="content/scripts/chosen/chosen.css">
+	<link rel="stylesheet" href="jquery-cronbuilder.css">
+
+	<script src="content/scripts/jquery/jquery-1.9.1.js"></script>
+	<script src="content/scripts/jquery-ui/jquery.ui.core.js"></script>
+	<script src="content/scripts/jquery-ui/jquery.ui.widget.js"></script>
+	<script src="content/scripts/jquery-ui/jquery.ui.mouse.js"></script>
+
+	<script src="content/scripts/chosen/chosen.jquery.js"></script>
+	<script src="jquery-cronbuilder-widget.js"></script>
+	<style>
+		body {
+			font-family: verdana;
+		}
+	</style>
+	<script>
+	$(function() {
+		$( "#cron" ).cronselector();
+	});
+	</script>
+</head>
+<body>
+
+<div id="cron"></div>
+
+
+<div>
+	<p>Cron Value Selected: <input type="text" name="cronValue"/></p>
+</div>
+</body>
+</html>
