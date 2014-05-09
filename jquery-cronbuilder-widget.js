@@ -25,8 +25,11 @@ $.widget( "cron.cronbase", {
 		return select;
     },
 
-    _buildSelectDay: function(container, clz, min, max, callback) {
+    _buildSelectDay: function(container, clz, min, max, multi, callback) {
 		var select = $("<select></select>");
+		if(multi) {
+			select.attr("multiple", "");
+		}
 		select.addClass(clz);
 
 		for (var i = min, limit = max; i <= limit; i++) {
@@ -50,8 +53,11 @@ $.widget( "cron.cronbase", {
 		return select;
     },
 
-    _buildSelect: function(container, clz, map, callback ) {
+    _buildSelect: function(container, clz, map, multi, callback ) {
 		var select = $("<select></select>");
+		if(multi == true) {
+			select.attr("multiple", "");
+		}
 		select.addClass(clz);
 		
 		$.each( map, function( key, value ) {
@@ -97,7 +103,7 @@ $.widget( "cron.cronselector", $.cron.cronbase, {
 		main.append("<div class='cron-text'>Every:</div>");
 
 		//build a select for the types, and register the callback.
-		var selector = this._buildSelect(main, "cron-type-select", this.types, this._setCronType);
+		var selector = this._buildSelect(main, "cron-type-select", this.types, false, this._setCronType);
 
 		var container = $("<div class='cron-container'></div>");
 		main.append(container);
@@ -132,7 +138,7 @@ $.widget( "cron.cronvalue", $.cron.cronbase, {
 		this.element.append("<div class='cron-text'>:</div>");
 		this._buildSelectTime(this.element, 'cron-minute', 0, 59, 1, this.broadcastEvent);
 		this.element.append("<div class='cron-text'> </div>");
-		this._buildSelect(this.element, 'cron-ampm', {"AM": "am", "PM": "pm",}, this.broadcastEvent);
+		this._buildSelect(this.element, 'cron-ampm', {"AM": "am", "PM": "pm",}, false, this.broadcastEvent);
 	},
 
 	registry: {
@@ -256,7 +262,7 @@ $.widget( "cron.cronweekselector", $.cron.cronvalue, {
 
 	_create: function() {
 		this.element.append("<div class='cron-text'>on</div>");
-		this._buildSelect(this.element, 'cron-day-of-week', this.day, this.broadcastEvent);
+		this._buildSelect(this.element, 'cron-day-of-week', this.day, true, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildTimePanel();
 		this.broadcastEvent();
@@ -268,7 +274,7 @@ $.widget( "cron.cronweekselector", $.cron.cronvalue, {
 $.widget( "cron.cronmonthselector", $.cron.cronvalue, {
 	_create: function() {
 		this.element.append("<div class='cron-text'>on the</div>");
-		this._buildSelectDay(this.element, 'cron-day-of-month', 1, 31, this.broadcastEvent);
+		this._buildSelectDay(this.element, 'cron-day-of-month', 1, 31, true, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>day at</div>");
 		this._buildTimePanel();
 		this.broadcastEvent();
@@ -292,9 +298,9 @@ $.widget( "cron.cronyearselector", $.cron.cronvalue, {
 	},
 	_create: function() {
 		this.element.append("<div class='cron-text'>on the</div>");
-		this._buildSelectDay(this.element, 'cron-day-of-month', 1, 31, this.broadcastEvent);
+		this._buildSelectDay(this.element, 'cron-day-of-month', 1, 31, true, this.broadcastEvent);
 		this.element.append("<div class='cron-text'>of</div>");
-		this._buildSelect(this.element, 'cron-month', this.months, this.broadcastEvent);	
+		this._buildSelect(this.element, 'cron-month', this.months, true, this.broadcastEvent);	
 		this.element.append("<div class='cron-text'>at</div>");
 		this._buildTimePanel();
 		this.broadcastEvent();
